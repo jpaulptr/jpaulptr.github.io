@@ -95,7 +95,7 @@ The key to all this is the closure which allows chainedRunner to keep track of c
 The code could easily be updated so that the results of each getData call would be passed to the next. Instead of binding values for each function, you could bind the first function and pass the result along with the wrapper callback to each subsequent callback. For simplicity's sake, I also neglected to handle error cases, but an extra value returned to the wrapper to indicate an error would be sufficient to handle errors.
 
 ## Using Async Callbacks in Parallel
-If you think about the naive example, if each function was async, you would have parallel execution. But what if you wanted to do something only when all the functions have completed? As written, you can't;
+If you think about the naive example, if each function was async, you would have parallel execution. But what if you wanted to do something only when all the functions have completed? As written, you can't.
 
 {% highlight js %}
     // naive implementation
