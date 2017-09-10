@@ -30,7 +30,7 @@ You could write something like this, and while it is serial execution in the sen
     }
 {% endhighlight %}
 
-What is need is a way to manage the async execution. In the code chained runner example, I have a series of functions that return an array with the results placed in an array in order. There are 3 functions to demonstrate how this works:
+What is needed is a way to manage the async execution. In the code chained runner example, I have a series of functions that return an array with the results placed in an array in order. There are 3 functions to demonstrate how this works:
 * getData which takes a number to use during it's calculation and a callback to call after it has completed processing. It also calls set timeout before it invokes the callback to that it becomes an async method.
 * getDataChained which binds a value that the getData method will use. This is intended to simulate the result of a data call, perhaps a call to a database. Once it has set up the functions, it passes them to a method which will process the functions.
 * Finally, we have the core controller, chainedRunner. It has the responsibility of managing each function call. I will explain how it works after the jump.
@@ -90,11 +90,20 @@ chainedRunner has two parts: the results store and index, to keep track of the i
 3. if there are functions remaining to all, it calls the next function passing the wrapper function. Remember, that the functions that are called have their data bound and only expect a callback.
 4. once all the functions are completed, the callback passed in by the user is invoked and passed the array of results
 
-The key to all this is the closure which allows chainedRunner to keep track of completing functions. This will be the key take away in all of these methods.
+The key to all this is the closure which allows chainedRunner to keep track of completing functions. This is the key take away of each async method I will explore.
 
-The code could easily be updated so that the results of each getData call would be passed to the next. Instead of binding values for each function, you could bind the first function and pass the result along with the wrapper callback to each subsequent callback. For simplicity sake, I also neglected to handle error cases, but an extra value returned to the wrapper to indicate an error would be sufficient to handle errors.
+The code could easily be updated so that the results of each getData call would be passed to the next. Instead of binding values for each function, you could bind the first function and pass the result along with the wrapper callback to each subsequent callback. For simplicity's sake, I also neglected to handle error cases, but an extra value returned to the wrapper to indicate an error would be sufficient to handle errors.
 
 ## Using Async Callbacks in Parallel
+If you think about the naive example, if each function was async, you would have parallel execution. But what if you wanted to do something only when all the functions have completed? As written, you can't;
+
+{% highlight js %}
+    // naive implementation
+    for (let i = 0; i < max; i++) {
+      arrayOfFunctions[i]();
+    }
+{% endhighlight %}
+
 To do something similar but in parallel, you would want to call the final callback only after all the functions have completed. (Or reached an error, again, something I didn't implement for simplicity's sake.) Again we have a getData function that does an async action, and a getDataParallel function that binds the data before passing it to parallelRunner.
 
 parallelRunner differs from chainedRunner in that it fires all functions it is passed without waiting for any of them to complete. Like, chainedRunner it passes the wrapper function to each function it calls. This will allow wrapper to keep track of function completion. Once all the functions have completed, it calls the final callback. To make it a little more useful, I added an option to keep the results ordered by the position in the function array of the function that generated the result. 
